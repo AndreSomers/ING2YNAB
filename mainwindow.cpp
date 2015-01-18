@@ -44,6 +44,8 @@ MainWindow::MainWindow(QWidget *parent) :
     filter->setSourceModel(m_store->model());
     ui->transactionView->setModel(filter);
 
+    filter->sort(0, Qt::AscendingOrder);
+
     connect(ui->cmdCreateYNABExport, &QCommandLinkButton::clicked,
             this, &MainWindow::createYNABExport);
 
