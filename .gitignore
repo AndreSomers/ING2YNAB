@@ -26,3 +26,9 @@
 *.exe
 *.out
 *.app
+
+# Qt generated files
+moc_*.cpp
+qrc_*.cpp
+ui_.h
+*.pro.user
