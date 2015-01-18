@@ -28,10 +28,10 @@ void TransactionStore::clear()
     updateSummaryValues();
 }
 
-void TransactionStore::addRawData(QList<QStringList> transactions)
+void TransactionStore::addRawData(QList<QStringList> transactions, QString sourceFile)
 {
     foreach(QStringList rawTransaction, transactions) {
-        Transaction* transaction = new Transaction(rawTransaction, this);
+        Transaction* transaction = new Transaction(rawTransaction, sourceFile, this);
         m_model->beginInsertRows(QModelIndex(),
                                  m_transactions.count(),
                                  m_transactions.count() + transaction->relatedTransactions().count() );
@@ -55,7 +55,7 @@ bool TransactionStore::addFromFile(const QString& fileName)
     if (dataFile.open(QFile::ReadOnly)) {
         QList<QStringList> rawData = CSV::parseFromFile(fileName);
         rawData.takeFirst(); //remove header row
-        addRawData(rawData);
+        addRawData(rawData, fileName);
         m_files << fileName;
         return true;
     } else {

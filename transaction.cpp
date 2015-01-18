@@ -41,9 +41,11 @@ QString Transaction::nameForType(int type)
 }
 
 Transaction::Transaction(QStringList rawRecord,
+                         QString sourceFile,
                          TransactionStore *parent) :
     Transaction(parent)
 {
+    m_sourceFile = sourceFile;
     parseRawRecord(rawRecord);
 }
 

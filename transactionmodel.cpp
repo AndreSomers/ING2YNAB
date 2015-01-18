@@ -71,6 +71,8 @@ QVariant TransactionModel::data(const QModelIndex &index, int role) const
         } else {
             return transaction->property(propertyName);
         }
+    } else if (role == Qt::ToolTipRole) {
+        return transaction->sourceFile();
     } else {
         return m_columns[index.column()].roles.value(role, QVariant());
     }

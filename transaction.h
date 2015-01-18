@@ -51,7 +51,7 @@ public:
     static QString nameForType(int type);
 
 public:
-    explicit Transaction(QStringList rawRecord, TransactionStore *parent = 0);
+    explicit Transaction(QStringList rawRecord, QString sourceFile, TransactionStore *parent = 0);
     ~Transaction();
 
     int type() const {return m_type;}
@@ -75,6 +75,7 @@ public:
     QString bic() const {return m_bic;}
     QString transactionId() const {return m_transactionId;}
     QString category() const {return m_category;}
+    QString sourceFile() const {return m_sourceFile;}
 
     QList<Transaction*> relatedTransactions() const {return m_related;}
     TransactionStore* store() const {return m_store;}
@@ -119,6 +120,7 @@ private: //members
     QString m_transactionId;
     QString m_bic;
     QString m_category;
+    QString m_sourceFile;
 
     QList<Transaction*> m_related;
 };

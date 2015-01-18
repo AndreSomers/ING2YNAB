@@ -28,7 +28,7 @@ public:
     explicit TransactionStore(QObject *parent = 0);
     ~TransactionStore();
     void clear();
-    void addRawData(QList<QStringList> transactions);
+    void addRawData(QList<QStringList> transactions, QString sourceFile = QString());
     bool setFromFile(const QString& fileName);
     bool addFromFile(const QString& fileName);
     int count() const {return m_transactions.count();}
