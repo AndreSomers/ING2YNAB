@@ -127,13 +127,13 @@ void MainWindow::createYNABExport()
     QHashIterator<QString, QList<QStringList> > it(output);
     while(it.hasNext()) {
         it.next();
-        QString fileName= QString("C:/Users/Andre/Downloads/ynab import %1 %2-%3.csv")
+        QString fileName= QString("%4/ynab import %1 %2-%3.csv")
                 .arg(it.key())
                 .arg(m_store->fromDate().toString("yyyyMMdd"))
-                .arg(m_store->toDate().toString("yyyyMMdd"));
+                .arg(m_store->toDate().toString("yyyyMMdd"))
+                .arg(Settings::instance()->scanDirectory());
         CSV::write(it.value(), fileName);
     }
-
 }
 
 void MainWindow::updateSummaryValues()
