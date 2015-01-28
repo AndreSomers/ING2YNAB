@@ -41,3 +41,5 @@ FORMS    += mainwindow.ui
 
 RESOURCES += \
     images.qrc
+
+win32:RC_FILE = images/ing2ynab.rc
