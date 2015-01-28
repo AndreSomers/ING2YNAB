@@ -29,6 +29,8 @@ private slots:
     void loadSettings();
     void saveSettings();
 
+    void openSettingsDialog();
+
 private:
     Ui::MainWindow *ui;
     TransactionStore* m_store;

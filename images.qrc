@@ -4,5 +4,6 @@
         <file alias="ing-white.png">images/ING-bankieren-app.png</file>
         <file alias="ing-orange.png">images/ING-orange-lion.png</file>
         <file alias="ing-ynab.png">images/ynab_ing32.png</file>
+        <file alias="gear.png">images/gear.png</file>
     </qresource>
 </RCC>

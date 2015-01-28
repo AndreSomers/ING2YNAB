@@ -23,7 +23,8 @@ SOURCES += main.cpp\
     scriptfilter.cpp \
     simplematchfilter.cpp \
     settings.cpp \
-    transactionmodelfilter.cpp
+    transactionmodelfilter.cpp \
+    settingsdialog.cpp
 
 HEADERS  += mainwindow.h \
     csv.h \
@@ -35,9 +36,11 @@ HEADERS  += mainwindow.h \
     scriptfilter.h \
     simplematchfilter.h \
     settings.h \
-    transactionmodelfilter.h
+    transactionmodelfilter.h \
+    settingsdialog.h
 
-FORMS    += mainwindow.ui
+FORMS    += mainwindow.ui \
+    settingsdialog.ui
 
 RESOURCES += \
     images.qrc

@@ -14,6 +14,7 @@
 #include <QDebug>
 #include <QDirIterator>
 #include <QLabel>
+#include "settingsdialog.h"
 #include "transactionmodelfilter.h"
 
 MainWindow::MainWindow(QWidget *parent) :
@@ -54,6 +55,9 @@ MainWindow::MainWindow(QWidget *parent) :
 
     connect(ui->leFilter, SIGNAL(textChanged(QString)),
             filter, SLOT(setFilterString(QString)));
+
+    connect(ui->cmdSettings, SIGNAL(clicked()),
+            this, SLOT(openSettingsDialog()));
 
     loadSettings();
 
@@ -218,4 +222,17 @@ void MainWindow::saveSettings()
         qWarning() << QString(QStringLiteral("Could not open settings file '%1' for writing!"))
                       .arg(settingsPath);
     }
+}
+
+void MainWindow::openSettingsDialog()
+{
+    auto dlg = new SettingsDialog();
+
+    connect(dlg, &SettingsDialog::accepted, this, &saveSettings);
+    connect(dlg, &SettingsDialog::accepted, m_store, &TransactionStore::clear);
+    connect(dlg, &SettingsDialog::accepted, this, &scanForIngFiles);
+
+    connect(dlg, &SettingsDialog::finished, dlg, &SettingsDialog::deleteLater);
+
+    dlg->open();
 }
