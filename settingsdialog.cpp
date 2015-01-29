@@ -49,7 +49,8 @@ void SettingsDialog::selectPath()
                 if (!fileName.isEmpty()) {
                     ui->lblPathData->setText(fileName);
                 }
-                fd->deleteLater();
             });
+    connect(fd, &QFileDialog::finished, fd, &QFileDialog::deleteLater);
+
     fd->open();
 }

@@ -146,3 +146,105 @@ bool StringHash::load(QJsonValue json)
 
     return true;
 }
+
+
+StringHashModel::StringHashModel(StringHash &data, QObject *parent):
+    QAbstractTableModel(parent),
+    m_data(data),
+    m_keys(data.keys())
+{
+    std::sort(m_keys.begin(), m_keys.end());
+}
+
+void StringHashModel::setColumnHeaders(const QString &header0, const QString &header1)
+{
+    if (header0 != m_header0) {
+        m_header0 = header0;
+        emit headerDataChanged(Qt::Horizontal, 0, 0);
+    }
+    if (header1 != m_header1) {
+        m_header1 = header1;
+        emit headerDataChanged(Qt::Horizontal, 1, 1);
+    }
+}
+
+int StringHashModel::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return m_data.count();
+}
+
+int StringHashModel::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+
+    return 2;
+}
+
+QVariant StringHashModel::data(const QModelIndex &index, int role) const
+{
+    if (index.parent().isValid() ||
+        index.row() < 0 ||
+        index.row() >= rowCount(index) ||
+        index.column() < 0 ||
+        index.column() >= columnCount(index))
+    {
+        return QVariant();
+    }
+
+    if (role == Qt::DisplayRole || role == Qt::EditRole) {
+        auto key = m_keys.at(index.row());
+        if (index.column() ) {
+            return key;
+        } else {
+            return m_data.value(key);
+        }
+    }
+
+    return QVariant();
+}
+
+QVariant StringHashModel::headerData(int section, Qt::Orientation orientation, int role) const
+{
+    if (orientation == Qt::Horizontal && role == Qt::DisplayRole) {
+        switch(section) {
+        case 0: return m_header0;
+        case 1: return m_header1;
+        default: return QVariant();
+        }
+    }
+
+    return QVariant();
+}
+
+bool StringHashModel::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if (index.parent().isValid() ||
+        index.row() < 0 ||
+        index.row() >= rowCount(index) ||
+        index.column() < 0 ||
+        index.column() >= columnCount(index))
+    {
+        return false;
+    }
+
+    QVector<int> roles { Qt::DisplayRole, Qt::EditRole};
+    if (roles.contains(role)) {
+        auto key = m_keys.at(index.row());
+        auto origValue = m_data.value(key);
+        if (index.column()==0 ) {
+            m_data.remove(key);
+            m_data.insert(value.toString(), origValue);
+            m_keys[index.row()] = value.toString();
+            emit dataChanged(index, index, roles);
+        } else {
+            m_data.insert(key, value.toString());
+            emit dataChanged(index, index, roles);
+        }
+    }
+
+    return true;
+}
