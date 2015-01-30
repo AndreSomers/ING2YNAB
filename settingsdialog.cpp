@@ -4,11 +4,16 @@
 
 #include <QFileDialog>
 
-SettingsDialog::SettingsDialog(QWidget *parent) :
+SettingsDialog::SettingsDialog(QAbstractItemModel *accountModel,
+                               QAbstractItemModel *cardModel,
+                               QWidget *parent) :
     QDialog(parent),
     ui(new Ui::SettingsDialog)
 {
     ui->setupUi(this);
+
+    ui->tvAccountNames->setModel(accountModel);
+    ui->tvCardNames->setModel(cardModel);
 
     loadSettings();
     connect(ui->cmdSelectPath, &QToolButton::clicked, this, &selectPath);

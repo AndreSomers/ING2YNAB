@@ -226,7 +226,9 @@ void MainWindow::saveSettings()
 
 void MainWindow::openSettingsDialog()
 {
-    auto dlg = new SettingsDialog();
+    auto dlg = new SettingsDialog(m_store->accountNameModel(),
+                                  m_store->cardNameModel(),
+                                  this);
 
     connect(dlg, &SettingsDialog::accepted, this, &saveSettings);
     connect(dlg, &SettingsDialog::accepted, m_store, &TransactionStore::clear);

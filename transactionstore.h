@@ -41,6 +41,8 @@ public:
     void setCardNameMap(StringHash cardNames);
 
     QAbstractItemModel* model();
+    QAbstractItemModel* accountNameModel();
+    QAbstractItemModel* cardNameModel();
 
     QDate fromDate() const {return m_fromDate;}
     QDate toDate() const {return m_toDate;}
@@ -75,26 +77,6 @@ private:
     friend class TransactionModel;
 };
 
-class StringHashModel: public QAbstractTableModel
-{
-    Q_OBJECT
-public:
-    StringHashModel(StringHash&data, QObject* parent);
-    void setColumnHeaders(const QString& header0,
-                          const QString& header1);
 
-protected:
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
-
-private:
-    StringHash& m_data;
-    QList<QString> m_keys;
-    QString m_header0;
-    QString m_header1;
-};
 
 #endif // TRANSACTIONSTORE_H
