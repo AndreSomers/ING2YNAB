@@ -52,19 +52,26 @@ public:
     StringHashModel(StringHash&data, QObject* parent);
     void setColumnHeaders(const QString& header0,
                           const QString& header1);
+    void setNewItemTemplate(const QString& leftItem,
+                            const QString& rightItem);
 
 protected:
-    int rowCount(const QModelIndex &parent) const;
-    int columnCount(const QModelIndex &parent) const;
-    QVariant data(const QModelIndex &index, int role) const;
-    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role);
+    int rowCount(const QModelIndex &parent) const override;
+    int columnCount(const QModelIndex &parent) const override;
+    QVariant data(const QModelIndex &index, int role) const override;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role) override;
+    Qt::ItemFlags flags(const QModelIndex &index) const override;
+    bool insertRows(int row, int count, const QModelIndex &parent) override;
+    bool removeRows(int row, int count, const QModelIndex &parent) override;
 
 private:
     StringHash& m_data;
     QList<QString> m_keys;
     QString m_header0;
     QString m_header1;
+    QString m_newItemTemplate0;
+    QString m_newItemTemplate1;
 };
 
 
@@ -86,6 +93,12 @@ void StringHashModel::setColumnHeaders(const QString &header0, const QString &he
         m_header1 = header1;
         emit headerDataChanged(Qt::Horizontal, 1, 1);
     }
+}
+
+void StringHashModel::setNewItemTemplate(const QString &leftItem, const QString &rightItem)
+{
+    m_newItemTemplate0 = leftItem;
+    m_newItemTemplate1 = rightItem;
 }
 
 int StringHashModel::rowCount(const QModelIndex &parent) const
@@ -117,9 +130,9 @@ QVariant StringHashModel::data(const QModelIndex &index, int role) const
 
     if (role == Qt::DisplayRole || role == Qt::EditRole) {
         auto key = m_keys.at(index.row());
-        if (index.column() ) {
+        if (index.column() == 0) {
             return key;
-        } else {
+        } else if (index.column() == 1){
             return m_data.value(key);
         }
     }
@@ -160,11 +173,73 @@ bool StringHashModel::setData(const QModelIndex &index, const QVariant &value, i
             m_data.insert(value.toString(), origValue);
             m_keys[index.row()] = value.toString();
             emit dataChanged(index, index, roles);
-        } else {
+        } else if (index.column() ==1) {
             m_data.insert(key, value.toString());
             emit dataChanged(index, index, roles);
         }
     }
+
+    return true;
+}
+
+Qt::ItemFlags StringHashModel::flags(const QModelIndex &index) const
+{
+    if (index.parent().isValid() ||
+        index.row() < 0 ||
+        index.row() >= rowCount(index.parent()) ||
+        index.column() < 0 ||
+        index.column() >= columnCount(index.parent()))
+    {
+        return 0;
+    }
+
+    return Qt::ItemIsEnabled | Qt::ItemIsEditable | Qt::ItemIsSelectable;
+}
+
+bool StringHashModel::insertRows(int row, int count, const QModelIndex &parent)
+{
+    if (parent.isValid() ||
+        row < 0 ||
+        row > rowCount(parent))
+    {
+        return false;
+    }
+
+    QString newItemTextLeft = m_newItemTemplate0.arg("").trimmed();
+    int i(0);
+    while(m_keys.contains(newItemTextLeft)) {
+        newItemTextLeft = m_newItemTemplate0.arg(++i);
+    }
+
+    beginInsertRows(parent, row, row);
+    m_keys.insert(row, newItemTextLeft);
+    m_data.insert(newItemTextLeft, m_newItemTemplate1);
+    endInsertRows();
+
+    if (--count > 0) {
+        return insertRows(row+1, count, parent);
+    }
+
+    return true;
+}
+
+bool StringHashModel::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if (parent.isValid() ||
+        row < 0 ||
+        row + count > rowCount(parent))
+    {
+        return false;
+    }
+
+    beginRemoveRows(parent,row, row + count - 1);
+    auto itBegin = m_keys.begin() + row;
+    auto itEnd = itBegin + count;
+
+    std::for_each(itBegin, itEnd, [&](const QString& key) {m_data.remove(key);});
+    m_keys.erase(itBegin, itEnd);
+
+    endRemoveRows();
 
     return true;
 }
@@ -242,13 +317,11 @@ QAbstractItemModel *TransactionStore::model()
 
 QAbstractItemModel *TransactionStore::accountNameModel()
 {
-    qDebug() << "account count" << m_accountNameMap.count();
     auto model = new StringHashModel(m_accountNameMap, this);
     model->setColumnHeaders(tr("Account"),
                             tr("Name"));
-    qDebug() << "account count"
-             << m_accountNameMap.count()
-             << static_cast<QAbstractItemModel*>(model)->rowCount(QModelIndex());
+    model->setNewItemTemplate(tr("New account %1"),
+                              tr("Name"));
     return model;
 }
 
@@ -257,6 +330,8 @@ QAbstractItemModel *TransactionStore::cardNameModel()
     auto model = new StringHashModel(m_cardNameMap, this);
     model->setColumnHeaders(tr("Card"),
                             tr("Name"));
+    model->setNewItemTemplate(tr("New card %1"),
+                              tr("Name"));
     return model;
 }
 
